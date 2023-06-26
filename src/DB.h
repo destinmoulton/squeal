@@ -17,7 +17,9 @@ public:
 
     bool connect(std::string dbname);
 
-    bool queryTable(std::string q, char **results, int rows, int cols);
+    bool queryTable(std::string q, char **results, int *rows, int *cols);
+
+    bool printResults(char **results, int rows, int cols);
 
     bool exec(std::string);
 
