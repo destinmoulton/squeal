@@ -5,6 +5,7 @@
 #ifndef SQUEEL_DB_H
 #define SQUEEL_DB_H
 
+#include <string>
 #include <sqlite3.h>
 
 class DB {
@@ -14,15 +15,19 @@ public:
 
     ~DB();
 
-    bool connect(const char *dbname);
+    bool connect(std::string dbname);
 
-    bool query(const char *query);
+    bool queryTable(std::string q, char **results, int rows, int cols);
 
+    bool exec(std::string);
+
+    bool query(std::string);
 
 private:
     sqlite3 *m_db;
 
     void printError();
+
 };
 
 
