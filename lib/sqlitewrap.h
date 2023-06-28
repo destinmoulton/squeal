@@ -8,6 +8,12 @@
 #include <string>
 #include <sqlite3.h>
 
+struct QueryResult {
+    char **results;
+    int rows;
+    int cols;
+};
+
 class SQLiteWrap {
 
 public:
@@ -17,13 +23,15 @@ public:
 
     bool connect(std::string dbname);
 
-    bool queryTable(std::string q, char **results, int *rows, int *cols);
+    QueryResult *queryTable(std::string q);
 
     bool printResults(char **results, int rows, int cols);
 
     bool exec(std::string);
 
     bool query(std::string);
+
+    QueryResult *get_all_tables();
 
 private:
     sqlite3 *m_db;

@@ -13,6 +13,8 @@ class GUI {
 public:
     static int run();
 
+private:
+    static void win_list_sqlite_tables();
     //static GLFWerrorfun glfw_error_callback(int error, const char *description);
 };
 

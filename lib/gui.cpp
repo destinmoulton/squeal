@@ -11,6 +11,7 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "fonts.h"
+#include "sqlitewrap.h"
 
 static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
@@ -100,7 +101,7 @@ int GUI::run() {
     //IM_ASSERT(font != nullptr);
 
     // Our state
-    bool show_demo_window = true;
+    bool show_demo_window = false;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
@@ -120,6 +121,10 @@ int GUI::run() {
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
+
+        {
+            GUI::win_list_sqlite_tables();
+        }
 
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
         {
@@ -189,5 +194,19 @@ int GUI::run() {
     glfwTerminate();
 
     return 0;
+}
+
+void GUI::win_list_sqlite_tables() {
+    SQLiteWrap sql;
+
+    sql.connect(std::string("test.db"));
+    QueryResult *qres = sql.get_all_tables();
+    ImGui::Begin(
+            "Tables");                          // Create a window called "Hello, world!" and append into it.
+
+    ImGui::Text("Number of tables: %d", qres->rows);
+
+
+    ImGui::End();
 }
 

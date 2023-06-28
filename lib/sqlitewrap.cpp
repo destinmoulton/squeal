@@ -39,19 +39,25 @@ bool SQLiteWrap::exec(std::string ex) {
     return true;
 }
 
-bool SQLiteWrap::queryTable(std::string q, char **results, int *rows, int *cols) {
+QueryResult *SQLiteWrap::queryTable(std::string q) {
     char *error;
-    int qres = sqlite3_get_table(m_db, q.c_str(), &results, rows, cols, &error);
+    char **results = nullptr;
+    int rows, cols;
+    int qres = sqlite3_get_table(m_db, q.c_str(), &results, &rows, &cols, &error);
     std::cout << "queryTable(...) :: qres = " << qres << std::endl;
     if (qres != 0) {
         std::cerr << "error executing sqlite3_get_table" << std::endl;
         printError();
         sqlite3_free(error);
-        return false;
+        return nullptr;
     }
     std::cout << "queryTable(...) :: query executed successfully" << std::endl;
-    std::cout << "queryTable(...) :: number of rows found: " << *rows << std::endl;
-    return true;
+    std::cout << "queryTable(...) :: number of rows found: " << rows << std::endl;
+    return new QueryResult{
+            results = results,
+            rows = rows,
+            cols = cols
+    };
 }
 
 bool SQLiteWrap::printResults(char **results, int rows, int cols) {
@@ -73,6 +79,19 @@ bool SQLiteWrap::printResults(char **results, int rows, int cols) {
 
 void SQLiteWrap::printError() {
     std::cerr << sqlite3_errmsg(m_db) << std::endl;
+}
+
+// Get a list of the
+QueryResult *SQLiteWrap::get_all_tables() {
+
+    std::string q("SELECT name "
+                  "FROM "
+                  "    sqlite_schema "
+                  "WHERE "
+                  "    type ='table' AND "
+                  "    name NOT LIKE 'sqlite_%';");
+
+    return queryTable(q);
 }
 
 
