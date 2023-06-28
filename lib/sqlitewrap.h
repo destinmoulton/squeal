@@ -33,6 +33,8 @@ public:
 
     QueryResult *get_all_tables();
 
+    void close_connection();
+
 private:
     sqlite3 *m_db;
 

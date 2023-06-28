@@ -14,8 +14,14 @@ SQLiteWrap::SQLiteWrap() {
 }
 
 SQLiteWrap::~SQLiteWrap() {
-    sqlite3_close_v2(m_db);
 };
+
+void SQLiteWrap::close_connection() {
+    sqlite3_close_v2(m_db);
+}
+
+bool SQLiteWrap::query(std::string) {
+}
 
 bool SQLiteWrap::connect(std::string dbname) {
     std::cout << "connecting to " << dbname << std::endl;
