@@ -7,14 +7,29 @@
 
 
 #include <GLFW/glfw3.h> // system OpenGL headers
+#include "sqlitewrap.h"
+
+struct GUIDB {
+    SQLiteWrap db;
+    bool is_connected = false;
+};
 
 class GUI {
 
 public:
-    static int run();
+    GUI();
+
+    ~GUI();
+
+    int run();
+
 
 private:
-    static void win_list_sqlite_tables();
+    GUIDB m_db;
+
+    void connect_to_db(std::string db_name);
+
+    void win_list_sqlite_tables();
     //static GLFWerrorfun glfw_error_callback(int error, const char *description);
 };
 

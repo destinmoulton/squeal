@@ -17,6 +17,20 @@ static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
+GUI::GUI() {
+    m_db = GUIDB{
+            SQLiteWrap(),
+            false
+    };
+}
+
+GUI::~GUI() {
+    if (m_db.is_connected) {
+        // Close any db connection
+        m_db.db.close_connection();
+    }
+}
+
 int GUI::run() {
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
@@ -93,7 +107,7 @@ int GUI::run() {
     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
     // - Our Emscripten build process allows embedding fonts to be accessible at runtime from the "fonts/" folder. See Makefile.emscripten for details.
     //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/DejaVuSans.ttf", 18.0f);
+    io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/DejaVuSans.ttf", 18.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
@@ -196,17 +210,41 @@ int GUI::run() {
     return 0;
 }
 
+void GUI::connect_to_db(std::string db_name) {
+    if (!m_db.is_connected) {
+        if (m_db.db.connect(db_name))
+            m_db.is_connected = true;
+    }
+}
+
+
 void GUI::win_list_sqlite_tables() {
-    SQLiteWrap sql;
+    if (!m_db.is_connected) {
+        connect_to_db("test.db");
+    } else {
+        QueryResult *qres = m_db.db.get_all_tables();
+        ImGui::Begin(
+                "Tables");                          // Create a window called "Hello, world!" and append into it.
 
-    sql.connect(std::string("test.db"));
-    QueryResult *qres = sql.get_all_tables();
-    ImGui::Begin(
-            "Tables");                          // Create a window called "Hello, world!" and append into it.
+        ImGui::Text("Number of tables: %d", qres->rows);
 
-    ImGui::Text("Number of tables: %d", qres->rows);
+        if (ImGui::Button("New Table")) {
 
+            if (!ImGui::IsPopupOpen("NewTable"))
+                ImGui::OpenPopup("NewTable");
+            if (ImGui::BeginPopupModal("NewTable", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
 
-    ImGui::End();
+                ImGui::Text("Create a new table");
+
+                ImVec2 button_size(ImGui::GetFontSize() * 7.0f, 0.0f);
+                if (ImGui::Button("Cancel", button_size)) {
+                    ImGui::CloseCurrentPopup();
+                }
+                ImGui::EndPopup();
+            }
+        }
+
+        ImGui::End();
+    }
 }
 
