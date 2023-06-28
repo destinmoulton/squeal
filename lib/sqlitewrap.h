@@ -8,12 +8,12 @@
 #include <string>
 #include <sqlite3.h>
 
-class DB {
+class SQLiteWrap {
 
 public:
-    DB();
+    SQLiteWrap();
 
-    ~DB();
+    ~SQLiteWrap();
 
     bool connect(std::string dbname);
 
