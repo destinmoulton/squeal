@@ -1,30 +1,10 @@
+//squeal is a simple sqlite database interface
+
 #include <iostream>
-#include <filesystem>
-#include "src/DB.h"
 
-int main() {
-    std::cout << "initializing..." << std::endl;
-    DB db;
+#include "lib/gui.h"
 
-    std::cout << "current_path=" << std::filesystem::current_path() << std::endl;
-
-    db.connect(std::string("test.db"));
-
-    char **results = nullptr;
-    int rows, cols;
-
-    std::string q("SELECT name "
-                  "FROM "
-                  "    sqlite_schema "
-                  "WHERE "
-                  "    type ='table' AND "
-                  "    name NOT LIKE 'sqlite_%';");
-
-    if (db.queryTable(q, results, &rows, &cols)) {
-
-        db.printResults(results, rows, cols);
-    }
-
-
-    return 0;
+int main(int, char **) {
+    GUI gui;
+    return gui.run();
 }

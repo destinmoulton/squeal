@@ -8,6 +8,7 @@
 
 #include <GLFW/glfw3.h> // system OpenGL headers
 #include "sqlitewrap.h"
+#include "gui_modals.h"
 
 struct GUIDB {
     SQLiteWrap db;
@@ -26,6 +27,7 @@ public:
 
 private:
     GUIDB m_db;
+    GUIModals m_guimodals;
 
     void connect_to_db(std::string db_name);
 

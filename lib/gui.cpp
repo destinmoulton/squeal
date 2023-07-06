@@ -2,7 +2,7 @@
 // Created by destin on 6/27/23.
 //
 
-#include <stdio.h>
+#include <cstdio>
 #include "gui.h"
 
 #include <GLFW/glfw3.h> // system OpenGL headers
@@ -10,14 +10,19 @@
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
-#include "fonts.h"
+//#include "fonts.h"
+
+
 #include "sqlitewrap.h"
+#include "gui_modals.h"
+
 
 static void glfw_error_callback(int error, const char *description) {
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
 GUI::GUI() {
+    m_guimodals = GUIModals();
     m_db = GUIDB{
             SQLiteWrap(),
             false
@@ -119,6 +124,7 @@ int GUI::run() {
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
+
     while (!glfwWindowShouldClose(window)) {
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -137,6 +143,8 @@ int GUI::run() {
             ImGui::ShowDemoWindow(&show_demo_window);
 
         {
+            // Initialize the modals
+            m_guimodals.run();
             GUI::win_list_sqlite_tables();
         }
 
@@ -219,12 +227,30 @@ void GUI::connect_to_db(std::string db_name) {
 
 
 void GUI::win_list_sqlite_tables() {
+    ImGui::Begin(
+            "Tables");                          // Create a window called "Hello, world!" and append into it.
     if (!m_db.is_connected) {
-        connect_to_db("test.db");
+        if (!m_guimodals.is_db_filename_set()) {
+            // Need to get the db filename via modal
+            if (ImGui::Button("Connect to DB")) {
+                m_guimodals.open_modal_connect_to_db();
+                //const char *filename = m_guimodals.get_db_filename();
+                //if (strcmp(filename, "") != 0)
+                //    m_guimodals.open_modal_message_box("Connected", "conn to db");
+            }
+
+        } else {
+            const char *filename = m_guimodals.get_db_filename();
+            if (!m_db.db.connect(filename)) {
+
+            } else {
+                m_db.is_connected = true;
+            }
+            //if (strcmp(filename, "") != 0)
+            //    m_guimodals.open_modal_message_box("Connected", "conn to db");
+        }
     } else {
         QueryResult *qres = m_db.db.get_all_tables();
-        ImGui::Begin(
-                "Tables");                          // Create a window called "Hello, world!" and append into it.
 
         ImGui::Text("Number of tables: %d", qres->rows);
 
@@ -232,7 +258,7 @@ void GUI::win_list_sqlite_tables() {
 
             if (!ImGui::IsPopupOpen("NewTable"))
                 ImGui::OpenPopup("NewTable");
-            if (ImGui::BeginPopupModal("NewTable", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+            if (ImGui::BeginPopupModal("NewTable", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
 
                 ImGui::Text("Create a new table");
 
@@ -244,7 +270,7 @@ void GUI::win_list_sqlite_tables() {
             }
         }
 
-        ImGui::End();
     }
+    ImGui::End();
 }
 

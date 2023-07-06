@@ -2,14 +2,46 @@
 // Created by destin on 7/3/23.
 //
 
-#include "imgui/imgui.h"
 #include "gui_modals.h"
 
 
-void GUIModals::open_modal_message_box(char *title, char *message) {
+GUIModals::GUIModals() {
+    m_id_connect = "Connect to DB##conndb";
 
-    if (ImGui::BeginPopupModal(title, NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
-        ImGui::Text(message);
+}
+
+GUIModals::~GUIModals() {
+    m_messages.clear();
+}
+
+void GUIModals::run() {
+
+    // Show messages first
+    if (m_messages.size() > 0) {
+        show_top_message();
+    } else {
+        // Other modals
+        if (is_connect_popup_open) {
+            reg_modal_connect_to_db();
+            if (!ImGui::IsPopupOpen(m_id_connect)) {
+                ImGui::OpenPopup(m_id_connect);
+            }
+        }
+    }
+}
+
+void GUIModals::show_top_message() {
+
+    SQ_Modal_Message msg = m_messages[0];
+
+    char *id;
+    std::sprintf(id, "%d", msg.id);
+    if (!ImGui::IsPopupOpen(id)) {
+        ImGui::OpenPopup(id);
+        m_messages.erase(m_messages.begin());
+    }
+    if (ImGui::BeginPopupModal(id, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("%s", msg.msg.c_str());
 
         // Always center this window when appearing
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -21,36 +53,54 @@ void GUIModals::open_modal_message_box(char *title, char *message) {
         }
         ImGui::EndPopup();
     }
-    ImGui::OpenPopup(title);
 }
 
 // Connect to db text input modal
-char *GUIModals::open_modal_connect_to_db() {
-    char filename[255];
-    if (ImGui::BeginPopupModal("Connect to DB", NULL, ImGuiWindowFlags_AlwaysAutoResize)) {
+void GUIModals::open_modal_connect_to_db() {
+    is_connect_popup_open = true;
+}
+
+void GUIModals::reg_modal_connect_to_db() {
+
+    if (ImGui::BeginPopupModal(m_id_connect, nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
 
         ImGui::Text("DB Filename:");
         ImGui::SameLine();
-        ImGui::InputText("##dbfilename", filename, IM_ARRAYSIZE(filename));
+        //ImGui::InputText("##dbfilename", filename, IM_ARRAYSIZE(filename));
+        ImGui::InputText("##dbfilename", m_db_filename, SQ_DB_FILENAME_SIZE);
 
         // Always center this window when appearing
         ImVec2 center = ImGui::GetMainViewport()->GetCenter();
         ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
         ImVec2 button_size(ImGui::GetFontSize() * 7.0f, 0.0f);
         if (ImGui::Button("Connect", button_size)) {
-            ImGui::CloseCurrentPopup();
-            return filename;
+            if (strcmp(m_db_filename, "") != 0) {
+                ImGui::CloseCurrentPopup();
+                is_connect_popup_open = false;
+                has_db_filename = true;
+            }
         }
         ImGui::SameLine();
         if (ImGui::Button("Cancel", button_size)) {
             ImGui::CloseCurrentPopup();
-            return nullptr;
+            is_connect_popup_open = false;
         }
         ImGui::EndPopup();
     }
-    ImGui::OpenPopup("Connect to DB");
+}
+
+char *GUIModals::get_db_filename() {
+    return m_db_filename;
+}
+
+bool GUIModals::is_db_filename_set() {
+    return has_db_filename;
 }
 
 
+void GUIModals::add_message(SQ_Message_Type type, std::string msg) {
+    m_messages.push_back(SQ_Modal_Message{m_message_id, type, msg});
+    m_message_id++;
+}
 
 
