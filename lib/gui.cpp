@@ -25,6 +25,7 @@ GUI::GUI() {
     m_guimodals = GUIModals();
     m_db = GUIDB{
             SQLiteWrap(),
+            false,
             false
     };
 }
@@ -216,13 +217,6 @@ int GUI::run() {
     glfwTerminate();
 
     return 0;
-}
-
-void GUI::connect_to_db(std::string db_name) {
-    if (!m_db.is_connected) {
-        if (m_db.db.connect(db_name))
-            m_db.is_connected = true;
-    }
 }
 
 

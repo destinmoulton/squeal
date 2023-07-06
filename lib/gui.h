@@ -13,6 +13,7 @@
 struct GUIDB {
     SQLiteWrap db;
     bool is_connected = false;
+    bool has_tables_list = false;
 };
 
 class GUI {
@@ -28,8 +29,6 @@ public:
 private:
     GUIDB m_db;
     GUIModals m_guimodals;
-
-    void connect_to_db(std::string db_name);
 
     void win_list_sqlite_tables();
     //static GLFWerrorfun glfw_error_callback(int error, const char *description);
