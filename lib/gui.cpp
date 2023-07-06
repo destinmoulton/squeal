@@ -246,27 +246,19 @@ void GUI::win_list_sqlite_tables() {
             //    m_guimodals.open_modal_message_box("Connected", "conn to db");
         }
     } else {
-        QueryResult *qres = m_db.db.get_all_tables();
+        if (!m_db.has_tables_list) {
+            QueryResult *qres = m_db.db.get_all_tables();
 
-        ImGui::Text("Number of tables: %d", qres->rows);
+            ImGui::Text("Number of tables: %d", qres->rows);
+        }
 
         if (ImGui::Button("New Table")) {
-
-            if (!ImGui::IsPopupOpen("NewTable"))
-                ImGui::OpenPopup("NewTable");
-            if (ImGui::BeginPopupModal("NewTable", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-
-                ImGui::Text("Create a new table");
-
-                ImVec2 button_size(ImGui::GetFontSize() * 7.0f, 0.0f);
-                if (ImGui::Button("Cancel", button_size)) {
-                    ImGui::CloseCurrentPopup();
-                }
-                ImGui::EndPopup();
-            }
+            m_guimodals.open_modal_newtable();
         }
 
     }
     ImGui::End();
 }
+
+
 
