@@ -5,6 +5,7 @@
 #ifndef SQUEAL_GUI_MODALS_H
 #define SQUEAL_GUI_MODALS_H
 
+#include <iostream>
 #include <vector>
 #include <cstdio>
 #include <format>
@@ -42,6 +43,8 @@ public:
     bool is_db_filename_set();
 
     void add_message(SQ_Message_Type type, std::string msg);
+
+    void clear_db_filename();
 
 private:
     bool is_connect_popup_open = false;

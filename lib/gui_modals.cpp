@@ -2,6 +2,7 @@
 // Created by destin on 7/3/23.
 //
 
+
 #include "gui_modals.h"
 
 
@@ -36,6 +37,7 @@ void GUIModals::show_top_message() {
 
     char *id;
     std::sprintf(id, "%d", msg.id);
+    std::cout << "message modal id: " << id << std::endl;
     if (!ImGui::IsPopupOpen(id)) {
         ImGui::OpenPopup(id);
         m_messages.erase(m_messages.begin());
@@ -97,6 +99,9 @@ bool GUIModals::is_db_filename_set() {
     return has_db_filename;
 }
 
+void GUIModals::clear_db_filename() {
+    strcpy(m_db_filename, "");
+}
 
 void GUIModals::add_message(SQ_Message_Type type, std::string msg) {
     m_messages.push_back(SQ_Modal_Message{m_message_id, type, msg});

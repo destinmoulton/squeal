@@ -242,9 +242,11 @@ void GUI::win_list_sqlite_tables() {
         } else {
             const char *filename = m_guimodals.get_db_filename();
             if (!m_db.db.connect(filename)) {
-
+                m_guimodals.clear_db_filename();
+                m_guimodals.add_message(SQ_Message_Type::Success, "Failed to Connect");
             } else {
                 m_db.is_connected = true;
+                m_guimodals.add_message(SQ_Message_Type::Success, "Connected to DB.");
             }
             //if (strcmp(filename, "") != 0)
             //    m_guimodals.open_modal_message_box("Connected", "conn to db");
