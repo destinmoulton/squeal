@@ -23,13 +23,14 @@ public:
 
     bool connect(std::string dbname);
 
-    QueryResult *queryTable(std::string q);
+    QueryResult *queryTable(char *q);
+
+    bool create_table(char *tablename);
 
     bool printResults(char **results, int rows, int cols);
 
-    bool exec(std::string);
+    bool exec(char *exq);
 
-    bool query(std::string);
 
     QueryResult *get_all_tables();
 
